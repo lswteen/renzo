@@ -1,0 +1,5 @@
+spring:
+  cloud:
+    config:
+      uri: https://dev-config-api.renzo.co.kr
+      name: renzo-auth-server

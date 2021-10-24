@@ -1,0 +1,75 @@
+import org.gradle.util.VersionNumber
+
+ext.set('GRADLE_LOADED_', '1.0.0')
+
+initscript {
+
+    //init 에 대한 설정
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        jcenter()
+    }
+
+    dependencies {
+        classpath gradleApi()
+    }
+
+    def isGradle51VersionOver = VersionNumber.parse( gradle.gradleVersion ) >= VersionNumber.parse( '6.8' )
+
+    //전체 프로젝트 buildscript 설정
+    allprojects { _project ->
+        buildscript {
+            repositories {
+                mavenLocal()
+                mavenCentral()
+                maven {
+                    url "https://plugins.gradle.org/m2/"
+                    if(isGradle68VersionOver) {
+                        content {
+                            excludeGroupByRegex "kr\\.co\\.renzo\\..*"
+                        }
+                    }
+                }
+                jcenter {
+                    if(isGradle68VersionOver) {
+                        content {
+                            excludeGroupByRegex "kr\\.co\\.renzo\\..*"
+                        }
+                    }
+                }
+            }
+
+            dependencies {
+                //maven bom 처럼 dependecy 관리를 위한 기술내역만 로드하는 플러그인
+                classpath "io.spring.gradle:dependency-management-plugin:${springDependencyManagementVersion}"
+
+                classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+//                classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2"
+            }
+        }
+
+        configurations {
+            all {
+                // 제외 처리 필요한 라이브러리 파일 설정
+                resolutionStrategy {
+                    // 라이브러리 버전 충돌시 에러 경고
+                    if (forcedModules.isEmpty()) {
+                        failOnVersionConflict()
+                    }
+                    try {
+                        // 모듈 변경 라이브러리 버전(SNAPSHOT) 캐쉬 없음
+                        cacheChangingModulesFor 0, 'seconds'
+                        // 동적 버전 라이브러리 버전은 30분만 캐쉬
+                        cacheDynamicVersionsFor 30 * 60, 'seconds'
+                    }catch(e) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+    }
+}

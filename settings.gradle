@@ -1,0 +1,6 @@
+rootProject.name = 'user'
+include 'core'
+include 'domain'
+include 'auth-server'
+include 'service'
+

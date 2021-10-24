@@ -1,0 +1,7 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    client-id: renzo-client
+    client-secret: renzo-pass
